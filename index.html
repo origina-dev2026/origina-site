@@ -518,7 +518,7 @@
           <li><a href="#" onclick="showModal('register')" data-i18n="footer_access1">Sign Up</a></li>
           <li><a href="#" onclick="showModal('login')" data-i18n="footer_access2">Login</a></li>
           <li><a href="https://api.origina.dev/docs" target="_blank">API Docs</a></li>
-          <li><a href="#" data-i18n="footer_access4">CLI Download</a></li>
+          <li><a href="#" onclick="showModal('login')" data-i18n="footer_access4">CLI Download</a></li>
         </ul>
       </div>
       <div>
@@ -627,6 +627,16 @@
   </div>
 </div>
 
+<!-- ===== ACTIVATIONS MODAL ===== -->
+<div class="modal-overlay" id="modal-activations" style="display:none">
+  <div class="modal">
+    <button class="modal-close" onclick="hideModal('activations')">✕</button>
+    <h2 data-i18n="activations_title">Activations</h2>
+    <p class="id-box" id="activations-appid" style="margin-bottom:14px"></p>
+    <div id="activations-content"></div>
+  </div>
+</div>
+
 <!-- ===== DASHBOARD ===== -->
 <div class="dash-layout" id="dash-layout">
   <div class="dash-header">
@@ -642,6 +652,7 @@
       <a href="#" onclick="showTab('apps',this)">📦 <span data-i18n="tab_apps">My Apps</span></a>
       <a href="#" onclick="showTab('create',this)">➕ <span data-i18n="tab_create">New App</span></a>
       <a href="#" onclick="showTab('transfer',this)">🔄 <span data-i18n="tab_transfer">Transfer</span></a>
+      <a href="#" onclick="showTab('downloads',this)">⬇️ <span data-i18n="tab_downloads">Downloads</span></a>
       <a href="#" onclick="showTab('profile',this)">👤 <span data-i18n="tab_profile">Profile</span></a>
     </div>
     <div class="dash-content">
@@ -660,17 +671,6 @@
           <p style="font-size:14px;color:var(--grigio);margin-bottom:8px" data-i18n="dash_devid_p">Use this ID with the ORIGINA CLI to encrypt your projects.</p>
           <div class="id-box" id="dash-dev-id"></div>
           <button class="copy-btn" onclick="copyText(document.getElementById('dash-dev-id').textContent)">📋 <span data-i18n="copy_btn">Copy</span></button>
-        </div>
-        <div class="card">
-          <h3 data-i18n="dash_cli_h">Quick CLI guide</h3>
-          <pre style="background:var(--grigio-light);padding:16px;border-radius:4px;font-size:13px;overflow-x:auto;line-height:1.8"># Install dependencies
-pip install cryptography requests
-
-# Encrypt your project
-python origina.py lock --dev-id &lt;YOUR_DEV_ID&gt; --app-id &lt;APP_ID&gt;
-
-# Decrypt (requires TOTP)
-python origina.py unlock --dev-id &lt;YOUR_DEV_ID&gt; --app-id &lt;APP_ID&gt;</pre>
         </div>
       </div>
 
@@ -728,6 +728,51 @@ python origina.py unlock --dev-id &lt;YOUR_DEV_ID&gt; --app-id &lt;APP_ID&gt;</p
             <input type="email" id="transfer-email" placeholder="recipient@example.com" />
           </div>
           <button class="form-btn" style="max-width:280px" onclick="doTransfer()" data-i18n="transfer_btn">Transfer App →</button>
+        </div>
+      </div>
+
+      <!-- TAB: DOWNLOADS -->
+      <div id="tab-downloads" style="display:none">
+        <h2 data-i18n="tab_downloads">Downloads</h2>
+        <div class="dash-breadcrumb">Dashboard › <span data-i18n="tab_downloads">Downloads</span></div>
+        <div class="card">
+          <h3 data-i18n="downloads_card_h">ORIGINA CLI files</h3>
+          <p style="font-size:14px;color:var(--grigio);margin-bottom:18px" data-i18n="downloads_intro">Download the latest CLI tools to protect, run and manage your projects.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:16px">
+            <div style="flex:1;min-width:220px;border:1px solid var(--bordo);border-radius:6px;padding:16px">
+              <div style="font-weight:700;font-family:monospace;margin-bottom:6px">devlock.py</div>
+              <p style="font-size:13px;color:var(--grigio);margin-bottom:14px" data-i18n="dl_devlock_desc">Command-line tool: protect, run, revoke, reactivate, activations, verify.</p>
+              <a class="form-btn" style="display:inline-block;width:auto;text-decoration:none;padding:10px 22px" href="https://api.origina.dev/downloads/devlock.py" download="devlock.py">⬇ <span data-i18n="dl_btn">Download</span></a>
+            </div>
+            <div style="flex:1;min-width:220px;border:1px solid var(--bordo);border-radius:6px;padding:16px">
+              <div style="font-weight:700;font-family:monospace;margin-bottom:6px">origina_loader.py</div>
+              <p style="font-size:13px;color:var(--grigio);margin-bottom:14px" data-i18n="dl_loader_desc">Runtime loader — bundle this with your protected app for end users.</p>
+              <a class="form-btn" style="display:inline-block;width:auto;text-decoration:none;padding:10px 22px" href="https://api.origina.dev/downloads/origina_loader.py" download="origina_loader.py">⬇ <span data-i18n="dl_btn">Download</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="dash_cli_h">Quick CLI guide</h3>
+          <pre data-i18n="cli_guide" style="background:var(--grigio-light);padding:16px;border-radius:4px;font-size:13px;overflow-x:auto;line-height:1.8"># Install dependencies
+pip install cryptography requests
+
+# Protect your project (encrypts + embeds the deploy token)
+python devlock.py protect --dev-id &lt;YOUR_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Run the protected app (verifies the license online)
+python devlock.py run
+
+# Revoke a license (blocks all running instances)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Reactivate a revoked license
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# List activations (machines that ran the app)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Verify integrity of .locked files
+python devlock.py verify --app-id &lt;APP_ID&gt;</pre>
         </div>
       </div>
 
@@ -903,14 +948,72 @@ async function loadApps() {
       return;
     }
     list.innerHTML = apps.map(a => `
-      <div class="app-row">
-        <div>
-          <div class="app-name">${a.app_name}</div>
-          <div class="app-id">${a.app_id}</div>
+      <div class="app-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="app-name">${a.app_name}</div>
+            <div class="app-id">${a.app_id}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="badge ${a.locked ? 'badge-red' : 'badge-green'}">${a.locked ? '🔒 ' + T[LANG].encrypted : '🔓 ' + T[LANG].not_encrypted}</span>
+            <span class="badge ${a.revoked ? 'badge-red' : 'badge-green'}">${a.revoked ? '⛔ ' + T[LANG].license_revoked : '✅ ' + T[LANG].license_active}</span>
+          </div>
         </div>
-        <span class="badge ${a.locked ? 'badge-red' : 'badge-green'}">${a.locked ? '🔒 ' + T[LANG].encrypted : '🔓 ' + T[LANG].not_encrypted}</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${a.revoked
+            ? `<button class="copy-btn" onclick="doReactivateApp('${a.app_id}','${a.app_name.replace(/'/g, "\\'")}')">▶ ${T[LANG].reactivate_btn}</button>`
+            : `<button class="copy-btn" onclick="doRevokeApp('${a.app_id}','${a.app_name.replace(/'/g, "\\'")}')">⛔ ${T[LANG].revoke_btn}</button>`}
+          <button class="copy-btn" onclick="showActivations('${a.app_id}')">📈 ${T[LANG].activations_btn}</button>
+        </div>
       </div>`).join('');
   } catch (e) { console.error(e); }
+}
+
+async function doRevokeApp(appId, appName) {
+  if (!confirm(`${T[LANG].confirm_revoke} "${appName}"?`)) return;
+  try {
+    await api('POST', '/runtime/revoke', { app_id: appId }, SESSION.token);
+    loadApps();
+  } catch (e) { alert(e.message); }
+}
+
+async function doReactivateApp(appId, appName) {
+  if (!confirm(`${T[LANG].confirm_reactivate} "${appName}"?`)) return;
+  try {
+    await api('POST', '/runtime/reactivate', { app_id: appId }, SESSION.token);
+    loadApps();
+  } catch (e) { alert(e.message); }
+}
+
+async function showActivations(appId) {
+  document.getElementById('activations-appid').textContent = appId;
+  const box = document.getElementById('activations-content');
+  box.innerHTML = `<div style="color:var(--grigio);font-size:14px">${T[LANG].loading}</div>`;
+  showModal('activations');
+  try {
+    const data = await api('GET', '/runtime/activations/' + appId, null, SESSION.token);
+    const acts = data.activations || [];
+    if (!acts.length) {
+      box.innerHTML = `<div style="color:var(--grigio);font-size:14px">${T[LANG].activations_empty}</div>`;
+      return;
+    }
+    box.innerHTML = `<table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="text-align:left;border-bottom:1px solid var(--bordo)">
+        <th style="padding:6px 4px">${T[LANG].activations_col_machine}</th>
+        <th style="padding:6px 4px">${T[LANG].activations_col_first}</th>
+        <th style="padding:6px 4px">${T[LANG].activations_col_last}</th>
+        <th style="padding:6px 4px">${T[LANG].activations_col_count}</th>
+      </tr>
+      ${acts.map(act => `<tr style="border-bottom:1px solid var(--bordo)">
+        <td style="padding:6px 4px;font-family:monospace">${act.machine_id_hash.slice(0, 16)}…</td>
+        <td style="padding:6px 4px">${new Date(act.first_seen * 1000).toLocaleString()}</td>
+        <td style="padding:6px 4px">${new Date(act.last_seen * 1000).toLocaleString()}</td>
+        <td style="padding:6px 4px">${act.call_count}</td>
+      </tr>`).join('')}
+    </table>`;
+  } catch (e) {
+    box.innerHTML = `<div class="msg err" style="display:block">${e.message}</div>`;
+  }
 }
 
 async function doCreateApp() {
@@ -1029,13 +1132,39 @@ const T = {
     login_email_lbl:'Email', login_pw_lbl:'Password',
     login_totp_lbl:'TOTP code (Google Authenticator)', login_totp_hint:'The code changes every 30 seconds.',
     login_btn:'Login →', login_switch:"Don't have an account?", login_switch_link:'Register here',
-    dash_logout:'Logout', tab_overview:'Overview', tab_apps:'My Apps', tab_create:'New App', tab_transfer:'Transfer', tab_profile:'Profile',
+    dash_logout:'Logout', tab_overview:'Overview', tab_apps:'My Apps', tab_create:'New App', tab_transfer:'Transfer', tab_downloads:'Downloads', tab_profile:'Profile',
     dash_welcome:'Welcome to your panel', stat_apps_lbl:'Registered apps', stat_locked_lbl:'Encrypted apps', stat_status:'ACTIVE', stat_status_lbl:'Account status',
     dash_devid_h:'Your Developer ID', dash_devid_p:'Use this ID with the ORIGINA CLI to encrypt your projects.',
     copy_btn:'Copy', dash_cli_h:'Quick CLI guide',
     apps_card_h:'Registered apps', loading:'Loading...',
     no_apps:'No apps registered yet.', create_first:'Create your first app',
     encrypted:'Encrypted', not_encrypted:'Not encrypted',
+    downloads_card_h:'ORIGINA CLI files', downloads_intro:'Download the latest CLI tools to protect, run and manage your projects.',
+    dl_devlock_desc:'Command-line tool: protect, run, revoke, reactivate, activations, verify.', dl_loader_desc:'Runtime loader — bundle this with your protected app for end users.', dl_btn:'Download',
+    license_active:'License active', license_revoked:'License revoked', revoke_btn:'Revoke license', reactivate_btn:'Reactivate license', activations_btn:'View activations',
+    confirm_revoke:'Revoke the license for', confirm_reactivate:'Reactivate the license for',
+    activations_title:'Activations', activations_empty:'No activations recorded yet.',
+    activations_col_machine:'Machine', activations_col_first:'First seen', activations_col_last:'Last seen', activations_col_count:'Calls',
+    cli_guide:`# Install dependencies
+pip install cryptography requests
+
+# Protect your project (encrypts + embeds the deploy token)
+python devlock.py protect --dev-id &lt;YOUR_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Run the protected app (verifies the license online)
+python devlock.py run
+
+# Revoke a license (blocks all running instances)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Reactivate a revoked license
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# List activations (machines that ran the app)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Verify integrity of .locked files
+python devlock.py verify --app-id &lt;APP_ID&gt;`,
     create_card_h:'Application details', create_name_lbl:'Application name', create_name_ph:'e.g. MyProject',
     create_desc_lbl:'Description (optional)', create_desc_ph:'Brief project description',
     create_btn:'Generate App ID →', create_appid_lbl:'Your App ID', copy_appid:'Copy App ID',
@@ -1124,13 +1253,39 @@ const T = {
     login_email_lbl:'Email', login_pw_lbl:'Password',
     login_totp_lbl:'Codice TOTP (Google Authenticator)', login_totp_hint:'Il codice cambia ogni 30 secondi.',
     login_btn:'Accedi →', login_switch:'Non hai un account?', login_switch_link:'Registrati qui',
-    dash_logout:'Esci', tab_overview:'Panoramica', tab_apps:'Le mie App', tab_create:'Nuova App', tab_transfer:'Trasferisci', tab_profile:'Profilo',
+    dash_logout:'Esci', tab_overview:'Panoramica', tab_apps:'Le mie App', tab_create:'Nuova App', tab_transfer:'Trasferisci', tab_downloads:'Download', tab_profile:'Profilo',
     dash_welcome:'Benvenuto nel pannello', stat_apps_lbl:'App registrate', stat_locked_lbl:'App cifrate', stat_status:'ATTIVO', stat_status_lbl:'Stato account',
     dash_devid_h:'Il tuo Developer ID', dash_devid_p:'Usa questo ID con il CLI ORIGINA per cifrare i tuoi progetti.',
     copy_btn:'Copia', dash_cli_h:'Guida rapida CLI',
     apps_card_h:'App registrate', loading:'Caricamento...',
     no_apps:'Nessuna app registrata.', create_first:'Crea la tua prima app',
     encrypted:'Cifrata', not_encrypted:'Non cifrata',
+    downloads_card_h:'File CLI ORIGINA', downloads_intro:'Scarica gli strumenti CLI più recenti per proteggere, eseguire e gestire i tuoi progetti.',
+    dl_devlock_desc:'Strumento da riga di comando: protect, run, revoke, reactivate, activations, verify.', dl_loader_desc:'Runtime loader — distribuiscilo insieme alla tua app protetta per gli utenti finali.', dl_btn:'Scarica',
+    license_active:'Licenza attiva', license_revoked:'Licenza revocata', revoke_btn:'Revoca licenza', reactivate_btn:'Riattiva licenza', activations_btn:'Vedi attivazioni',
+    confirm_revoke:'Revocare la licenza per', confirm_reactivate:'Riattivare la licenza per',
+    activations_title:'Attivazioni', activations_empty:'Nessuna attivazione registrata.',
+    activations_col_machine:'Macchina', activations_col_first:'Prima rilevazione', activations_col_last:'Ultima rilevazione', activations_col_count:'Chiamate',
+    cli_guide:`# Installa le dipendenze
+pip install cryptography requests
+
+# Proteggi il progetto (cifra + incorpora il deploy token)
+python devlock.py protect --dev-id &lt;IL_TUO_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Avvia l'app protetta (verifica la licenza online)
+python devlock.py run
+
+# Revoca una licenza (blocca tutte le istanze in esecuzione)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Riattiva una licenza revocata
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# Elenca le attivazioni (macchine che hanno eseguito l'app)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Verifica l'integrità dei file .locked
+python devlock.py verify --app-id &lt;APP_ID&gt;`,
     create_card_h:'Dettagli applicazione', create_name_lbl:'Nome applicazione', create_name_ph:'es. MioProgetto',
     create_desc_lbl:'Descrizione (opzionale)', create_desc_ph:'Breve descrizione del progetto',
     create_btn:'Genera App ID →', create_appid_lbl:'Il tuo App ID', copy_appid:'Copia App ID',
@@ -1211,11 +1366,37 @@ const T = {
     login_h:'Entrar en tu cuenta', login_sub:'Introduce tus credenciales y el código TOTP',
     login_email_lbl:'Email', login_pw_lbl:'Contraseña', login_totp_lbl:'Código TOTP (Google Authenticator)', login_totp_hint:'El código cambia cada 30 segundos.',
     login_btn:'Entrar →', login_switch:'¿No tienes cuenta?', login_switch_link:'Regístrate aquí',
-    dash_logout:'Salir', tab_overview:'Resumen', tab_apps:'Mis Apps', tab_create:'Nueva App', tab_transfer:'Transferir', tab_profile:'Perfil',
+    dash_logout:'Salir', tab_overview:'Resumen', tab_apps:'Mis Apps', tab_create:'Nueva App', tab_transfer:'Transferir', tab_downloads:'Descargas', tab_profile:'Perfil',
     dash_welcome:'Bienvenido a tu panel', stat_apps_lbl:'Apps registradas', stat_locked_lbl:'Apps cifradas', stat_status:'ACTIVO', stat_status_lbl:'Estado cuenta',
     dash_devid_h:'Tu Developer ID', dash_devid_p:'Usa este ID con el CLI de ORIGINA para cifrar tus proyectos.',
     copy_btn:'Copiar', dash_cli_h:'Guía rápida CLI', apps_card_h:'Apps registradas', loading:'Cargando...',
     no_apps:'No hay apps registradas.', create_first:'Crea tu primera app', encrypted:'Cifrada', not_encrypted:'No cifrada',
+    downloads_card_h:'Archivos CLI de ORIGINA', downloads_intro:'Descarga las herramientas CLI más recientes para proteger, ejecutar y gestionar tus proyectos.',
+    dl_devlock_desc:'Herramienta de línea de comandos: protect, run, revoke, reactivate, activations, verify.', dl_loader_desc:'Runtime loader — distribúyelo junto con tu app protegida para los usuarios finales.', dl_btn:'Descargar',
+    license_active:'Licencia activa', license_revoked:'Licencia revocada', revoke_btn:'Revocar licencia', reactivate_btn:'Reactivar licencia', activations_btn:'Ver activaciones',
+    confirm_revoke:'Revocar la licencia de', confirm_reactivate:'Reactivar la licencia de',
+    activations_title:'Activaciones', activations_empty:'Aún no hay activaciones registradas.',
+    activations_col_machine:'Máquina', activations_col_first:'Primera vez', activations_col_last:'Última vez', activations_col_count:'Llamadas',
+    cli_guide:`# Instala las dependencias
+pip install cryptography requests
+
+# Protege tu proyecto (cifra + incorpora el deploy token)
+python devlock.py protect --dev-id &lt;TU_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Ejecuta la app protegida (verifica la licencia online)
+python devlock.py run
+
+# Revoca una licencia (bloquea todas las instancias en ejecución)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Reactiva una licencia revocada
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# Lista las activaciones (máquinas que ejecutaron la app)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Verifica la integridad de los archivos .locked
+python devlock.py verify --app-id &lt;APP_ID&gt;`,
     create_card_h:'Detalles de la aplicación', create_name_lbl:'Nombre de la aplicación', create_name_ph:'ej. MiProyecto',
     create_desc_lbl:'Descripción (opcional)', create_desc_ph:'Breve descripción del proyecto',
     create_btn:'Generar App ID →', create_appid_lbl:'Tu App ID', copy_appid:'Copiar App ID', app_created:'App registrada con éxito:',
@@ -1295,11 +1476,37 @@ const T = {
     login_h:'Connexion à votre compte', login_sub:'Entrez vos identifiants et le code TOTP',
     login_email_lbl:'Email', login_pw_lbl:'Mot de passe', login_totp_lbl:'Code TOTP (Google Authenticator)', login_totp_hint:'Le code change toutes les 30 secondes.',
     login_btn:'Se connecter →', login_switch:'Vous n\'avez pas de compte ?', login_switch_link:'Inscrivez-vous ici',
-    dash_logout:'Déconnexion', tab_overview:'Aperçu', tab_apps:'Mes Apps', tab_create:'Nouvelle App', tab_transfer:'Transférer', tab_profile:'Profil',
+    dash_logout:'Déconnexion', tab_overview:'Aperçu', tab_apps:'Mes Apps', tab_create:'Nouvelle App', tab_transfer:'Transférer', tab_downloads:'Téléchargements', tab_profile:'Profil',
     dash_welcome:'Bienvenue dans votre panneau', stat_apps_lbl:'Apps enregistrées', stat_locked_lbl:'Apps chiffrées', stat_status:'ACTIF', stat_status_lbl:'Statut compte',
     dash_devid_h:'Votre Developer ID', dash_devid_p:'Utilisez cet ID avec le CLI ORIGINA pour chiffrer vos projets.',
     copy_btn:'Copier', dash_cli_h:'Guide rapide CLI', apps_card_h:'Apps enregistrées', loading:'Chargement...',
     no_apps:'Aucune app enregistrée.', create_first:'Créez votre première app', encrypted:'Chiffrée', not_encrypted:'Non chiffrée',
+    downloads_card_h:'Fichiers CLI ORIGINA', downloads_intro:'Téléchargez les derniers outils CLI pour protéger, exécuter et gérer vos projets.',
+    dl_devlock_desc:'Outil en ligne de commande : protect, run, revoke, reactivate, activations, verify.', dl_loader_desc:'Runtime loader — à distribuer avec votre application protégée pour les utilisateurs finaux.', dl_btn:'Télécharger',
+    license_active:'Licence active', license_revoked:'Licence révoquée', revoke_btn:'Révoquer la licence', reactivate_btn:'Réactiver la licence', activations_btn:'Voir les activations',
+    confirm_revoke:'Révoquer la licence de', confirm_reactivate:'Réactiver la licence de',
+    activations_title:'Activations', activations_empty:'Aucune activation enregistrée pour le moment.',
+    activations_col_machine:'Machine', activations_col_first:'Première activation', activations_col_last:'Dernière activation', activations_col_count:'Appels',
+    cli_guide:`# Installer les dépendances
+pip install cryptography requests
+
+# Protéger votre projet (chiffre + intègre le deploy token)
+python devlock.py protect --dev-id &lt;VOTRE_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Lancer l'application protégée (vérifie la licence en ligne)
+python devlock.py run
+
+# Révoquer une licence (bloque toutes les instances en cours)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Réactiver une licence révoquée
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# Lister les activations (machines ayant exécuté l'app)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Vérifier l'intégrité des fichiers .locked
+python devlock.py verify --app-id &lt;APP_ID&gt;`,
     create_card_h:'Détails de l\'application', create_name_lbl:'Nom de l\'application', create_name_ph:'ex. MonProjet',
     create_desc_lbl:'Description (optionnel)', create_desc_ph:'Brève description du projet',
     create_btn:'Générer App ID →', create_appid_lbl:'Votre App ID', copy_appid:'Copier App ID', app_created:'App enregistrée avec succès :',
@@ -1379,11 +1586,37 @@ const T = {
     login_h:'In dein Konto einloggen', login_sub:'Gib deine Anmeldedaten und den TOTP-Code ein',
     login_email_lbl:'E-Mail', login_pw_lbl:'Passwort', login_totp_lbl:'TOTP-Code (Google Authenticator)', login_totp_hint:'Der Code ändert sich alle 30 Sekunden.',
     login_btn:'Anmelden →', login_switch:'Noch kein Konto?', login_switch_link:'Hier registrieren',
-    dash_logout:'Abmelden', tab_overview:'Übersicht', tab_apps:'Meine Apps', tab_create:'Neue App', tab_transfer:'Übertragen', tab_profile:'Profil',
+    dash_logout:'Abmelden', tab_overview:'Übersicht', tab_apps:'Meine Apps', tab_create:'Neue App', tab_transfer:'Übertragen', tab_downloads:'Downloads', tab_profile:'Profil',
     dash_welcome:'Willkommen in deinem Panel', stat_apps_lbl:'Registrierte Apps', stat_locked_lbl:'Verschlüsselte Apps', stat_status:'AKTIV', stat_status_lbl:'Kontostatus',
     dash_devid_h:'Deine Developer ID', dash_devid_p:'Verwende diese ID mit dem ORIGINA-CLI zum Verschlüsseln deiner Projekte.',
     copy_btn:'Kopieren', dash_cli_h:'Schnell-CLI-Anleitung', apps_card_h:'Registrierte Apps', loading:'Wird geladen...',
     no_apps:'Keine Apps registriert.', create_first:'Erstelle deine erste App', encrypted:'Verschlüsselt', not_encrypted:'Nicht verschlüsselt',
+    downloads_card_h:'ORIGINA-CLI-Dateien', downloads_intro:'Lade die neuesten CLI-Tools herunter, um deine Projekte zu schützen, auszuführen und zu verwalten.',
+    dl_devlock_desc:'Kommandozeilen-Tool: protect, run, revoke, reactivate, activations, verify.', dl_loader_desc:'Runtime-Loader — zusammen mit deiner geschützten App an Endnutzer verteilen.', dl_btn:'Herunterladen',
+    license_active:'Lizenz aktiv', license_revoked:'Lizenz widerrufen', revoke_btn:'Lizenz widerrufen', reactivate_btn:'Lizenz reaktivieren', activations_btn:'Aktivierungen anzeigen',
+    confirm_revoke:'Lizenz widerrufen für', confirm_reactivate:'Lizenz reaktivieren für',
+    activations_title:'Aktivierungen', activations_empty:'Noch keine Aktivierungen erfasst.',
+    activations_col_machine:'Maschine', activations_col_first:'Erste Aktivierung', activations_col_last:'Letzte Aktivierung', activations_col_count:'Aufrufe',
+    cli_guide:`# Abhängigkeiten installieren
+pip install cryptography requests
+
+# Projekt schützen (verschlüsselt + bettet Deploy-Token ein)
+python devlock.py protect --dev-id &lt;IHRE_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Geschützte App starten (prüft die Lizenz online)
+python devlock.py run
+
+# Lizenz widerrufen (blockiert alle laufenden Instanzen)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Widerrufene Lizenz reaktivieren
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# Aktivierungen anzeigen (Maschinen, die die App ausgeführt haben)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Integrität der .locked-Dateien prüfen
+python devlock.py verify --app-id &lt;APP_ID&gt;`,
     create_card_h:'Anwendungsdetails', create_name_lbl:'Anwendungsname', create_name_ph:'z.B. MeinProjekt',
     create_desc_lbl:'Beschreibung (optional)', create_desc_ph:'Kurze Projektbeschreibung',
     create_btn:'App ID generieren →', create_appid_lbl:'Deine App ID', copy_appid:'App ID kopieren', app_created:'App erfolgreich registriert:',
@@ -1463,11 +1696,37 @@ const T = {
     login_h:'Entrar na sua conta', login_sub:'Insira suas credenciais e o código TOTP',
     login_email_lbl:'Email', login_pw_lbl:'Senha', login_totp_lbl:'Código TOTP (Google Authenticator)', login_totp_hint:'O código muda a cada 30 segundos.',
     login_btn:'Entrar →', login_switch:'Não tem uma conta?', login_switch_link:'Registre-se aqui',
-    dash_logout:'Sair', tab_overview:'Visão geral', tab_apps:'Meus Apps', tab_create:'Novo App', tab_transfer:'Transferir', tab_profile:'Perfil',
+    dash_logout:'Sair', tab_overview:'Visão geral', tab_apps:'Meus Apps', tab_create:'Novo App', tab_transfer:'Transferir', tab_downloads:'Downloads', tab_profile:'Perfil',
     dash_welcome:'Bem-vindo ao seu painel', stat_apps_lbl:'Apps registrados', stat_locked_lbl:'Apps criptografados', stat_status:'ATIVO', stat_status_lbl:'Status da conta',
     dash_devid_h:'Sua Developer ID', dash_devid_p:'Use este ID com o CLI ORIGINA para criptografar seus projetos.',
     copy_btn:'Copiar', dash_cli_h:'Guia rápido CLI', apps_card_h:'Apps registrados', loading:'Carregando...',
     no_apps:'Nenhum app registrado.', create_first:'Crie seu primeiro app', encrypted:'Criptografado', not_encrypted:'Não criptografado',
+    downloads_card_h:'Arquivos CLI ORIGINA', downloads_intro:'Baixe as ferramentas CLI mais recentes para proteger, executar e gerenciar seus projetos.',
+    dl_devlock_desc:'Ferramenta de linha de comando: protect, run, revoke, reactivate, activations, verify.', dl_loader_desc:'Runtime loader — distribua junto com seu app protegido para os usuários finais.', dl_btn:'Baixar',
+    license_active:'Licença ativa', license_revoked:'Licença revogada', revoke_btn:'Revogar licença', reactivate_btn:'Reativar licença', activations_btn:'Ver ativações',
+    confirm_revoke:'Revogar a licença de', confirm_reactivate:'Reativar a licença de',
+    activations_title:'Ativações', activations_empty:'Nenhuma ativação registrada ainda.',
+    activations_col_machine:'Máquina', activations_col_first:'Primeira vez', activations_col_last:'Última vez', activations_col_count:'Chamadas',
+    cli_guide:`# Instale as dependências
+pip install cryptography requests
+
+# Proteja o seu projeto (cifra + incorpora o deploy token)
+python devlock.py protect --dev-id &lt;SEU_DEV_ID&gt; --app-id &lt;APP_ID&gt; --entry main
+
+# Execute a app protegida (verifica a licença online)
+python devlock.py run
+
+# Revogue uma licença (bloqueia todas as instâncias em execução)
+python devlock.py revoke --app-id &lt;APP_ID&gt;
+
+# Reative uma licença revogada
+python devlock.py reactivate --app-id &lt;APP_ID&gt;
+
+# Liste as ativações (máquinas que executaram a app)
+python devlock.py activations --app-id &lt;APP_ID&gt;
+
+# Verifique a integridade dos arquivos .locked
+python devlock.py verify --app-id &lt;APP_ID&gt;`,
     create_card_h:'Detalhes do aplicativo', create_name_lbl:'Nome do aplicativo', create_name_ph:'ex. MeuProjeto',
     create_desc_lbl:'Descrição (opcional)', create_desc_ph:'Breve descrição do projeto',
     create_btn:'Gerar App ID →', create_appid_lbl:'Seu App ID', copy_appid:'Copiar App ID', app_created:'App registrado com sucesso:',
